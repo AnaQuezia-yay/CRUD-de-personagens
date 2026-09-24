@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de Personagens</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="tituloForm">Cadastrar Novo Personagem</h1>
+        <form id="formPersonagem">
+            <input type="hidden" id="personagemId">
+            
+            <input type="text" id="nome" placeholder="Nome do Personagem (Ex: Kael)" required>
+            <input type="text" id="origem" placeholder="Origem / Terra Natal (Ex: Reino de Prata)" required>
+            <input type="number" id="idade" placeholder="Idade" required>
+            <input type="text" id="profissao" placeholder="Profissão / Classe (Ex: Mago)" required>
+            
+            <!-- Select para o gênero -->
+            <select id="genero" required>
+                <option value="" disabled selected>Selecione o Gênero</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Não-Binário">Não-Binário</option>
+                <option value="Outro">Outro</option>
+            </select>
+
+            <!-- Textarea para a personalidade (permite textos longos) -->
+            <textarea id="personalidade" placeholder="Descreva a personalidade, medos e motivações..." rows="4" required></textarea>
+
+            <button type="submit" id="btnSalvar">Salvar Personagem</button>
+            <button type="button" id="btnCancelar" class="btn-cancelar" onclick="limparFormulario()">Cancelar</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Seus Personagens</h2>
+        <input type="text" id="pesquisa" placeholder="🔍 Buscar por nome..." onkeyup="filtrarPersonagens()">
+        <div id="listaPersonagens"></div>
+    </div>
+
+    <script>
+        // ATENÇÃO: Você precisará atualizar esta URL para a rota correta do seu novo backend Python!
+        const API_URL = 'http://127.0.0.1:5000/personagens';
+        let todosOsPersonagens = []; 
+
+        async function carregarPersonagens() {
+            try {
+                const resposta = await fetch(API_URL);
+                todosOsPersonagens = await resposta.json();
+                renderizarLista(todosOsPersonagens);
+            } catch (erro) {
+                document.getElementById('listaPersonagens').innerHTML = '<p style="color:red;">Ligue o servidor Python!</p>';
+            }
+        }
+
+        function renderizarLista(personagens) {
+            const divLista = document.getElementById('listaPersonagens');
+            divLista.innerHTML = '';
+            personagens.forEach(personagem => {
+                divLista.innerHTML += `
+                    <div class="filme-item"> <!-- Mantive a classe CSS para aproveitar seu estilo antigo -->
+                        <div>
+                            <strong>${personagem.nome}</strong> (${personagem.idade} anos)<br>
+                            <small>${personagem.profissao} de ${personagem.origem} | ${personagem.genero}</small><br>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #555;"><i>"${personagem.personalidade}"</i></p>
+                        </div>
+                        <div class="acoes">
+                            <button class="btn-editar" onclick="prepararEdicao(${personagem.id}, '${escapeHtml(personagem.nome)}', '${escapeHtml(personagem.origem)}', ${personagem.idade}, '${escapeHtml(personagem.profissao)}', '${personagem.genero}', '${escapeHtml(personagem.personalidade)}')">Editar</button>
+                            <button class="btn-excluir" onclick="excluirPersonagem(${personagem.id})">Excluir</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filtrarPersonagens() {
+            const termo = document.getElementById('pesquisa').value.toLowerCase();
+            const filtrados = todosOsPersonagens.filter(p => p.nome.toLowerCase().includes(termo));
+            renderizarLista(filtrados);
+        }
+
+        document.getElementById('formPersonagem').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('personagemId').value;
+            
+            // Montando o objeto exatamente com os novos campos
+            const personagemDado = {
+                nome: document.getElementById('nome').value,
+                origem: document.getElementById('origem').value,
+                idade: parseInt(document.getElementById('idade').value),
+                profissao: document.getElementById('profissao').value,
+                genero: document.getElementById('genero').value,
+                personalidade: document.getElementById('personalidade').value
+            };
+
+            if (id) {
+                await fetch(`${API_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(personagemDado) });
+            } else {
+                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(personagemDado) });
+            }
+            limparFormulario();
+            carregarPersonagens();
+        });
+
+        async function excluirPersonagem(id) {
+            if (confirm('Excluir este personagem para sempre?')) {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                carregarPersonagens();
+            }
+        }
+
+        function prepararEdicao(id, nome, origem, idade, profissao, genero, personalidade) {
+            document.getElementById('personagemId').value = id;
+            document.getElementById('nome').value = nome;
+            document.getElementById('origem').value = origem;
+            document.getElementById('idade').value = idade;
+            document.getElementById('profissao').value = profissao;
+            document.getElementById('genero').value = genero;
+            document.getElementById('personalidade').value = personalidade;
+            
+            document.getElementById('tituloForm').innerText = 'Editar Personagem';
+            document.getElementById('btnSalvar').innerText = 'Atualizar';
+            document.getElementById('btnCancelar').style.display = 'block';
+        }
+
+        function limparFormulario() {
+            document.getElementById('formPersonagem').reset();
+            document.getElementById('personagemId').value = '';
+            document.getElementById('tituloForm').innerText = 'Cadastrar Novo Personagem';
+            document.getElementById('btnSalvar').innerText = 'Salvar Personagem';
+            document.getElementById('btnCancelar').style.display = 'none';
+        }
+
+        function escapeHtml(str) { 
+            if (!str) return '';
+            return str.replace(/'/g, "\\'"); 
+        }
+
+        carregarPersonagens();
+    </script>
+</body>
+</html>
