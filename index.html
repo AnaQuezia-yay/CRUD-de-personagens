@@ -7,39 +7,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5"> <!-- container centraliza, mt-5 dá margem no topo -->
-    <h1 id="tituloForm" class="mb-4">Cadastrar Novo Personagem</h1>
-    
-    <!-- O card p-4 shadow cria uma "caixa" branca flutuante com sombra para o formulário -->
-    <form id="formPersonagem" class="card p-4 shadow">
-        <input type="hidden" id="personagemId">
-        
-        <div class="mb-3">
-            <input type="text" id="nome" class="form-control" placeholder="Nome do Personagem (Ex: Kael)" required>
-        </div>
-        
-        <div class="mb-3">
-            <input type="text" id="origem" class="form-control" placeholder="Origem / Terra Natal" required>
-        </div>
-        
-        <div class="mb-3">
-            <select id="genero" class="form-select" required>
+    <div class="container">
+        <h1 id="tituloForm">Cadastrar Novo Personagem</h1>
+        <form id="formPersonagem">
+            <input type="hidden" id="personagemId">
+            
+            <input type="text" id="nome" placeholder="Nome do Personagem (Ex: Kael)" required>
+            <input type="text" id="origem" placeholder="Origem / Terra Natal (Ex: Reino de Prata)" required>
+            <input type="number" id="idade" placeholder="Idade" required>
+            <input type="text" id="profissao" placeholder="Profissão / Classe (Ex: Mago)" required>
+            
+            <!-- Select para o gênero -->
+            <select id="genero" required>
                 <option value="" disabled selected>Selecione o Gênero</option>
                 <option value="Masculino">Masculino</option>
                 <option value="Feminino">Feminino</option>
+                <option value="Não-Binário">Não-Binário</option>
+                <option value="Outro">Outro</option>
             </select>
-        </div>
 
-        <div class="mb-3">
-            <textarea id="personalidade" class="form-control" placeholder="Descreva a personalidade..." rows="3" required></textarea>
-        </div>
+            <!-- Textarea para a personalidade (permite textos longos) -->
+            <textarea id="personalidade" placeholder="Descreva a personalidade, medos e motivações..." rows="4" required></textarea>
 
-        <div class="d-flex gap-2 mt-2">
-            <button type="submit" id="btnSalvar" class="btn btn-primary">Salvar Personagem</button>
-            <button type="button" id="btnCancelar" class="btn btn-secondary" onclick="limparFormulario()" style="display: none;">Cancelar</button>
-        </div>
-    </form>
-</div>
+            <button type="submit" id="btnSalvar">Salvar Personagem</button>
+            <button type="button" id="btnCancelar" class="btn-cancelar" onclick="limparFormulario()">Cancelar</button>
+        </form>
+    </div>
 
     <div class="container">
         <h2>Seus Personagens</h2>
