@@ -1,45 +1,128 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Metamorphous&display=swap');
 
-body { 
-    font-family: 'Poppins', sans-serif; 
-    background-color: #d1c8e1; /* O fundo roxo que você colocou */
-    color: #333; display: flex; flex-direction: column; align-items: center;
-    padding: 40px 20px; margin: 0;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #2B211B;
+    background-image: radial-gradient(#3D3027 1px, transparent 0);
+    background-size: 16px 16px;
+    color: #3C2A21;
+    font-family: 'Georgia', serif;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
 }
 
 .container {
-    background-color: #ffffff; width: 100%; max-width: 600px;
-    padding: 30px; border-radius: 12px; margin-bottom: 30px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15); /* Cria um destaque */
-    box-sizing: border-box;
+    background-color: #F5EBE0;
+    border: 3px double #D5BDAF;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-h1, h2 { text-align: center; color: #4a4063; margin-top: 0; }
-
-input { 
-    width: 100%; padding: 12px; margin: 10px 0 20px 0; 
-    border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
-    font-family: 'Poppins', sans-serif; outline: none;
+h1, h2 {
+    font-family: 'Cinzel', serif;
+    color: #1A120B;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #D5BDAF;
+    padding-bottom: 0.5rem;
 }
-input:focus { border-color: #7251b5; }
 
-#pesquisa { border: 2px solid #7251b5; background-color: #f9f7ff; }
-
-button { 
-    width: 100%; padding: 12px; font-weight: 600; font-size: 16px;
-    border: none; border-radius: 8px; cursor: pointer;
-    background-color: #7251b5; color: white; margin-bottom: 10px;
-    font-family: 'Poppins', sans-serif; transition: 0.2s;
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
-button:hover { background-color: #5d4296; }
-.btn-cancelar { background-color: #6c757d; display: none; }
 
-.filme-item { 
-    background: #f9f9f9; padding: 15px 20px; margin-bottom: 12px; 
-    border-radius: 8px; border-left: 5px solid #7251b5; 
-    display: flex; justify-content: space-between; align-items: center;
+input, select, textarea {
+    background-color: #E3CAA5;
+    border: 1px solid #CEAB93;
+    border-radius: 4px;
+    padding: 0.8rem;
+    color: #1A120B;
+    font-family: 'Georgia', serif;
+    outline: none;
 }
-.acoes { display: flex; gap: 10px; }
-.acoes button { padding: 8px 12px; font-size: 14px; width: auto; margin: 0; }
-.btn-editar { background-color: #ffc107; color: #333; }
-.btn-excluir { background-color: #ff4d4d; color: white; }
+
+input:focus, select:focus, textarea:focus {
+    border-color: #AD8B73;
+    background-color: #FFF8EA;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+#btnSalvar {
+    background-color: #AD8B73;
+    color: #FFF8EA;
+}
+
+#btnSalvar:hover {
+    background-color: #93765D;
+}
+
+.btn-cancelar {
+    background-color: transparent;
+    color: #783D19;
+    border: 1px solid #CEAB93;
+    display: none;
+}
+
+#pesquisa {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+#listaPersonagens {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.filme-item {
+    background-color: #E3CAA5;
+    border: 1px dashed #AD8B73;
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filme-item strong {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: #1A120B;
+}
+
+.acoes {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-editar {
+    background-color: #806248;
+    color: white;
+}
+
+.btn-excluir {
+    background-color: #783D19;
+    color: white;
+}
