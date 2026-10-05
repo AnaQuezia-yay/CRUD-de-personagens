@@ -6,7 +6,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+
+    <!-- Menu de Navegação Superior (Abas) -->
+    <nav class="menu-abas">
+        <button id="abaCadastrar" class="btn-aba ativa" onclick="mudarAba('cadastro')">➕ Cadastrar Personagem</button>
+        <button id="abaVerTodos" class="btn-aba" onclick="mudarAba('catalogo')">📜 Ver Todos os Personagens</button>
+    </nav>
+
+    <!-- TELA 1: Formulário de Cadastro / Edição -->
+    <div id="telaCadastro" class="container aba-conteudo ativa">
         <h1 id="tituloForm">Cadastrar Novo Personagem</h1>
         <form id="formPersonagem">
             <input type="hidden" id="personagemId">
@@ -16,7 +24,6 @@
             <input type="number" id="idade" placeholder="Idade" required>
             <input type="text" id="profissao" placeholder="Profissão / Classe (Ex: Mago)" required>
             
-            <!-- Select para o gênero -->
             <select id="genero" required>
                 <option value="" disabled selected>Selecione o Gênero</option>
                 <option value="Masculino">Masculino</option>
@@ -25,7 +32,6 @@
                 <option value="Outro">Outro</option>
             </select>
 
-            <!-- Textarea para a personalidade (permite textos longos) -->
             <textarea id="personalidade" placeholder="Descreva a personalidade, medos e motivações..." rows="4" required></textarea>
 
             <button type="submit" id="btnSalvar">Salvar Personagem</button>
@@ -33,17 +39,56 @@
         </form>
     </div>
 
-    <div class="container">
+    <!-- TELA 2: Catálogo Expandido com Filtros Avançados -->
+    <div id="telaCatalogo" class="container aba-conteudo">
         <h2>Seus Personagens</h2>
-        <input type="text" id="pesquisa" placeholder="🔍 Buscar por nome..." onkeyup="filtrarPersonagens()">
+        
+        <!-- Painel de Filtros Avançados -->
+        <div class="painel-filtros">
+            <input type="text" id="pesquisa" placeholder="🔍 Buscar por nome..." oninput="filtrarPersonagens()">
+            
+            <div class="filtros-grupo">
+                <select id="filtroGenero" onchange="filtrarPersonagens()">
+                    <option value="">Todos os Gêneros</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Não-Binário">Não-Binário</option>
+                    <option value="Outro">Outro</option>
+                </select>
+
+                <select id="filtroIdade" onchange="filtrarPersonagens()">
+                    <option value="">Todas as Idades</option>
+                    <option value="jovem">Jovens (0 a 18 anos)</option>
+                    <option value="adulto">Adultos (19 a 50 anos)</option>
+                    <option value="idoso">Anciãos (51+ anos)</option>
+                </select>
+            </div>
+        </div>
+
         <div id="listaPersonagens"></div>
     </div>
 
     <script>
-        // ATENÇÃO: Você precisará atualizar esta URL para a rota correta do seu novo backend Python!
         const API_URL = 'https://crud-de-personagens.onrender.com/personagens';
         let todosOsPersonagens = []; 
 
+        // --- SISTEMA DE NAVEGAÇÃO DE ABAS ---
+        function mudarAba(abaDestino) {
+            // Oculta todas as telas e desativa os botões
+            document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.remove('ativa'));
+            document.querySelectorAll('.btn-aba').forEach(el => el.classList.remove('ativa'));
+
+            // Exibe a tela escolhida e ativa o botão
+            if (abaDestino === 'cadastro') {
+                document.getElementById('telaCadastro').classList.add('ativa');
+                document.getElementById('abaCadastrar').classList.add('ativa');
+            } else {
+                document.getElementById('telaCatalogo').classList.add('ativa');
+                document.getElementById('abaVerTodos').classList.add('ativa');
+            }
+        }
+
+        // --- REQUISIÇÃO À API ---
         async function carregarPersonagens() {
             try {
                 const resposta = await fetch(API_URL);
@@ -57,13 +102,19 @@
         function renderizarLista(personagens) {
             const divLista = document.getElementById('listaPersonagens');
             divLista.innerHTML = '';
+
+            if (personagens.length === 0) {
+                divLista.innerHTML = '<p style="text-align: center; color: #888;">Nenhum personagem encontrado com estes filtros.</p>';
+                return;
+            }
+
             personagens.forEach(personagem => {
                 divLista.innerHTML += `
-                    <div class="filme-item"> <!-- Mantive a classe CSS para aproveitar seu estilo antigo -->
+                    <div class="filme-item">
                         <div>
                             <strong>${personagem.nome}</strong> (${personagem.idade} anos)<br>
                             <small>${personagem.profissao} de ${personagem.origem} | ${personagem.genero}</small><br>
-                            <p style="margin-top: 5px; font-size: 0.9em; color: #555;"><i>"${personagem.personalidade}"</i></p>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #aaa;"><i>"${personagem.personalidade}"</i></p>
                         </div>
                         <div class="acoes">
                             <button class="btn-editar" onclick="prepararEdicao(${personagem.id}, '${escapeHtml(personagem.nome)}', '${escapeHtml(personagem.origem)}', ${personagem.idade}, '${escapeHtml(personagem.profissao)}', '${personagem.genero}', '${escapeHtml(personagem.personalidade)}')">Editar</button>
@@ -74,17 +125,32 @@
             });
         }
 
+        // --- FILTRAGEM COMBINADA (NOME, GÊNERO E IDADE) ---
         function filtrarPersonagens() {
-            const termo = document.getElementById('pesquisa').value.toLowerCase();
-            const filtrados = todosOsPersonagens.filter(p => p.nome.toLowerCase().includes(termo));
+            const termoNome = document.getElementById('pesquisa').value.toLowerCase();
+            const generoSel = document.getElementById('filtroGenero').value;
+            const faixaIdadeSel = document.getElementById('filtroIdade').value;
+
+            const filtrados = todosOsPersonagens.filter(p => {
+                const bateNome = p.nome.toLowerCase().includes(termoNome);
+                const bateGenero = generoSel === '' || p.genero === generoSel;
+                
+                let bateIdade = true;
+                if (faixaIdadeSel === 'jovem') bateIdade = p.idade <= 18;
+                else if (faixaIdadeSel === 'adulto') bateIdade = p.idade > 18 && p.idade <= 50;
+                else if (faixaIdadeSel === 'idoso') bateIdade = p.idade > 50;
+
+                return bateNome && bateGenero && bateIdade;
+            });
+
             renderizarLista(filtrados);
         }
 
+        // --- FORMULÁRIO (SALVAR / EDITAR / EXCLUIR) ---
         document.getElementById('formPersonagem').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('personagemId').value;
             
-            // Montando o objeto exatamente com os novos campos
             const personagemDado = {
                 nome: document.getElementById('nome').value,
                 origem: document.getElementById('origem').value,
@@ -99,8 +165,10 @@
             } else {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(personagemDado) });
             }
+
             limparFormulario();
-            carregarPersonagens();
+            await carregarPersonagens();
+            mudarAba('catalogo'); // Redireciona automaticamente para a tela de lista após salvar
         });
 
         async function excluirPersonagem(id) {
@@ -122,6 +190,8 @@
             document.getElementById('tituloForm').innerText = 'Editar Personagem';
             document.getElementById('btnSalvar').innerText = 'Atualizar';
             document.getElementById('btnCancelar').style.display = 'block';
+
+            mudarAba('cadastro'); // Muda para a aba de formulário para edição
         }
 
         function limparFormulario() {

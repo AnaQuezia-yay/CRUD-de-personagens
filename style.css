@@ -126,3 +126,55 @@ button {
     background-color: #783D19;
     color: white;
 }
+
+/* --- NAVEGAÇÃO DE ABAS --- */
+.menu-abas {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 650px;
+    width: 100%;
+}
+
+.btn-aba {
+    flex: 1;
+    background-color: #1A1C29;
+    color: #9CA3AF;
+    border: 1px solid #2E334D;
+    padding: 0.8rem 1rem;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-aba.ativa {
+    background-color: #7C3AED;
+    color: #FFFFFF;
+    border-color: #7C3AED;
+}
+
+/* --- CONTROLE DE EXIBIÇÃO DAS TELAS --- */
+.aba-conteudo {
+    display: none; /* Oculta todas por padrão */
+}
+
+.aba-conteudo.ativa {
+    display: block; /* Exibe apenas a aba ativa */
+}
+
+/* --- PAINEL DE FILTROS --- */
+.painel-filtros {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.filtros-grupo {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.filtros-grupo select {
+    flex: 1;
+}
