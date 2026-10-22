@@ -1,65 +1,56 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS # Isso permite que seu HTML converse com o Python
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-CORS(app) # Libera a comunicação entre o front e o back
+CORS(app)
 
-# Nossa "base de dados" temporária (uma lista do Python)
-personagens = []
-id_atual = 1 # Para gerar IDs únicos para cada personagem
+# Cria um arquivo chamado personagens.db na sua pasta
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///personagens.db'
+db = SQLAlchemy(app)
 
-# 1. ROTA READ: Listar todos os personagens
+# O "Molde" do Banco de Dados
+class Personagem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100))
+    origem = db.Column(db.String(100))
+    idade = db.Column(db.Integer)
+    profissao = db.Column(db.String(100))
+    genero = db.Column(db.String(50))
+    personalidade = db.Column(db.Text)
+
+# Gera o arquivo do banco automaticamente
+with app.app_context():
+    db.create_all()
+
 @app.route('/personagens', methods=['GET'])
-def listar_personagens():
-    return jsonify(personagens)
+def listar():
+    personagens = Personagem.query.all()
+    # Converte os objetos do banco para JSON
+    return jsonify([{"id": p.id, "nome": p.nome, "origem": p.origem, "idade": p.idade, "profissao": p.profissao, "genero": p.genero, "personalidade": p.personalidade} for p in personagens])
 
-# 2. ROTA CREATE: Criar um novo personagem
 @app.route('/personagens', methods=['POST'])
-def criar_personagem():
-    global id_atual
-    dados = request.json # Pega os dados que vieram do formulário HTML
-    
-    novo_personagem = {
-        "id": id_atual,
-        "nome": dados.get("nome"),
-        "origem": dados.get("origem"),
-        "idade": dados.get("idade"),
-        "profissao": dados.get("profissao"),
-        "genero": dados.get("genero"),
-        "personalidade": dados.get("personalidade")
-    }
-    
-    personagens.append(novo_personagem)
-    id_atual += 1
-    
-    return jsonify(novo_personagem), 201 # 201 significa "Criado com sucesso"
-
-# 3. ROTA UPDATE: Editar um personagem existente
-@app.route('/personagens/<int:id>', methods=['PUT'])
-def editar_personagem(id):
+def criar():
     dados = request.json
-    
-    for personagem in personagens:
-        if personagem["id"] == id:
-            # Atualiza os dados se encontrar o personagem
-            personagem["nome"] = dados.get("nome", personagem["nome"])
-            personagem["origem"] = dados.get("origem", personagem["origem"])
-            personagem["idade"] = dados.get("idade", personagem["idade"])
-            personagem["profissao"] = dados.get("profissao", personagem["profissao"])
-            personagem["genero"] = dados.get("genero", personagem["genero"])
-            personagem["personalidade"] = dados.get("personalidade", personagem["personalidade"])
-            return jsonify(personagem)
-            
-    return jsonify({"erro": "Personagem não encontrado"}), 404
+    novo_personagem = Personagem(**dados)
+    db.session.add(novo_personagem)
+    db.session.commit()
+    return jsonify({"mensagem": "Personagem criado com sucesso!"}), 201
 
-# 4. ROTA DELETE: Excluir um personagem
+@app.route('/personagens/<int:id>', methods=['PUT'])
+def editar(id):
+    personagem = Personagem.query.get(id)
+    dados = request.json
+    for chave, valor in dados.items():
+        setattr(personagem, chave, valor)
+    db.session.commit()
+    return jsonify({"mensagem": "Atualizado!"})
+
 @app.route('/personagens/<int:id>', methods=['DELETE'])
-def excluir_personagem(id):
-    global personagens
-    # Recria a lista de personagens, mantendo apenas os que NÃO têm o id informado
-    personagens = [p for p in personagens if p["id"] != id]
-    return jsonify({"mensagem": "Personagem excluído com sucesso"})
+def excluir(id):
+    Personagem.query.filter_by(id=id).delete()
+    db.session.commit()
+    return jsonify({"mensagem": "Excluído!"})
 
-# Liga o servidor
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) # O debug=True atualiza o servidor sozinho quando você salva o arquivo
+    app.run(debug=True, port=5000)
