@@ -68,6 +68,7 @@
         <div id="listaPersonagens"></div>
     </div>
 
+    // =========== JAVASCRIPT =======================
     <script>
         const API_URL = 'https://crud-de-personagens.onrender.com/personagens';
         let todosOsPersonagens = []; 
@@ -114,7 +115,7 @@
                         <div>
                             <strong>${personagem.nome}</strong> (${personagem.idade} anos)<br>
                             <small>${personagem.profissao} de ${personagem.origem} | ${personagem.genero}</small><br>
-                            <p style="margin-top: 5px; font-size: 0.9em; color: #aaa;"><i>"${personagem.personalidade}"</i></p>
+                            <p style="margin-top: 5px; font-size: 0.9em;"><i>"${personagem.personalidade}"</i></p>
                         </div>
                         <div class="acoes">
                             <button class="btn-editar" onclick="prepararEdicao(${personagem.id}, '${escapeHtml(personagem.nome)}', '${escapeHtml(personagem.origem)}', ${personagem.idade}, '${escapeHtml(personagem.profissao)}', '${personagem.genero}', '${escapeHtml(personagem.personalidade)}')">Editar</button>
